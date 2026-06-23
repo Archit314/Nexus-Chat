@@ -1,4 +1,7 @@
 /*
 !/app_frontend
+!/app_backend
+/app_backend/node_modules
+/app_backend/dist
 /app_frontend/node_modules
 /app_frontend/dist
