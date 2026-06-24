@@ -1,4 +1,4 @@
-export default function SignUpDesktop() {
+export default function SignIn() {
   return (
     <div className="min-h-screen flex flex-col bg-surface-deep text-on-surface overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
       <div className="obsidian-flux-bg"></div>
@@ -15,30 +15,21 @@ export default function SignUpDesktop() {
               </div>
               <h1 className="font-headline-md text-headline-md text-primary tracking-tight">Nexus Chat</h1>
             </div>
-            <p className="font-body-md text-on-surface-variant max-w-[280px] md:max-w-none">Initialize your encrypted identity across the neural mesh.</p>
+            <p className="font-body-md text-on-surface-variant max-w-[280px] md:max-w-none">Establish a secure link to the neural mesh.</p>
           </div>
           <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-2">
-              <label className="font-label-sm text-label-sm uppercase tracking-widest text-text-secondary flex justify-between" htmlFor="email">
-                Electronic Mail <span className="text-secondary opacity-50 font-label-md">[REQUIRED]</span>
-              </label>
-              <div className="relative flex items-center input-glow group transition-all duration-300 border border-border-subtle bg-surface-muted/50 rounded-lg overflow-hidden">
-                <span className="material-symbols-outlined absolute left-4 text-on-surface-variant group-focus-within:text-primary transition-colors">alternate_email</span>
-                <input className="w-full bg-transparent border-none py-3.5 pl-12 pr-4 text-primary placeholder:text-on-surface-variant/40 focus:ring-0 focus:outline-none font-label-md" id="email" placeholder="user@nexus.network" type="email" />
-              </div>
-            </div>
-            <div className="space-y-2">
               <label className="font-label-sm text-label-sm uppercase tracking-widest text-text-secondary flex justify-between" htmlFor="nexus-id">
-                Nexus Identifier <span className="text-secondary opacity-50 font-label-md">[UNIQUE]</span>
+                Nexus Identifier <span className="text-secondary opacity-50 font-label-md">[REQUIRED]</span>
               </label>
               <div className="relative flex items-center input-glow group transition-all duration-300 border border-border-subtle bg-surface-muted/50 rounded-lg overflow-hidden">
                 <span className="material-symbols-outlined absolute left-4 text-on-surface-variant group-focus-within:text-primary transition-colors">fingerprint</span>
-                <input className="w-full bg-transparent border-none py-3.5 pl-12 pr-4 text-primary placeholder:text-on-surface-variant/40 focus:ring-0 focus:outline-none font-label-md" id="nexus-id" placeholder="nexus_user_01" type="text" />
+                <input className="w-full bg-transparent border-none py-3.5 pl-12 pr-4 text-primary placeholder:text-on-surface-variant/40 focus:ring-0 focus:outline-none font-label-md" id="nexus-id" placeholder="NX-7700-ALPHA" type="text" />
               </div>
             </div>
             <div className="space-y-2">
               <label className="font-label-sm text-label-sm uppercase tracking-widest text-text-secondary flex justify-between" htmlFor="access-key">
-                Create Access Key <span className="text-secondary opacity-50 font-label-md">[ENCRYPTED]</span>
+                Access Key <span className="text-secondary opacity-50 font-label-md">[ENCRYPTED]</span>
               </label>
               <div className="relative flex items-center input-glow group transition-all duration-300 border border-border-subtle bg-surface-muted/50 rounded-lg overflow-hidden">
                 <span className="material-symbols-outlined absolute left-4 text-on-surface-variant group-focus-within:text-primary transition-colors">key</span>
@@ -47,17 +38,11 @@ export default function SignUpDesktop() {
                   <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </button>
               </div>
-              <div className="flex gap-1 h-1 mt-2">
-                <div className="flex-1 bg-secondary rounded-full opacity-30"></div>
-                <div className="flex-1 bg-secondary rounded-full opacity-30"></div>
-                <div className="flex-1 bg-white/10 rounded-full"></div>
-                <div className="flex-1 bg-white/10 rounded-full"></div>
-              </div>
             </div>
             <div className="pt-4">
               <button className="w-full group relative overflow-hidden bg-primary-container text-on-primary-container font-headline-sm text-headline-sm py-4 rounded-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-transform duration-200">
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                <span className="relative z-10">Create Identity</span>
+                <span className="relative z-10">Initialize Session</span>
                 <span className="material-symbols-outlined relative z-10 transition-transform group-hover:translate-x-1">arrow_forward</span>
               </button>
             </div>
@@ -67,8 +52,8 @@ export default function SignUpDesktop() {
                 Need Assistance?
               </a>
               <div className="flex items-center gap-4">
-                <span className="opacity-30">Existing Identity?</span>
-                <a className="text-secondary hover:brightness-125 transition-all font-bold" href="#">Sign In</a>
+                <span className="opacity-30">New operator?</span>
+                <a className="text-secondary hover:brightness-125 transition-all font-bold" href="/auth/sign-up">Register Terminal</a>
               </div>
             </div>
           </form>

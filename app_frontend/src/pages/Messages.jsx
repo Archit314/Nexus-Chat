@@ -1,11 +1,8 @@
 export default function Messages() {
   return (
-    <>
-      <header className="h-16 px-gutter flex items-center justify-between glass-card border-b border-border-subtle z-30 sticky top-0 bg-glass-bg">
+    <div className="flex flex-col h-full w-full relative flex-1">
+      <header className="flex h-16 px-gutter items-center justify-between glass-card border-b border-border-subtle z-30 sticky top-0 bg-glass-bg">
         <div className="flex items-center gap-4">
-          <div className="md:hidden">
-            <button className="p-2 text-on-surface-variant"><span className="material-symbols-outlined">menu</span></button>
-          </div>
           <div className="relative">
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 p-0.5">
               <div className="w-full h-full rounded-full bg-surface-container"></div>
@@ -53,6 +50,32 @@ export default function Messages() {
             <span className="material-symbols-outlined text-[14px] text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>done_all</span>
           </div>
         </div>
+        <div className="flex flex-col items-start gap-3 max-w-[85%] md:max-w-[70%]">
+          <div className="glass-card rounded-2xl rounded-tl-none p-5 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
+            <p className="text-body-md text-on-surface relative z-10 leading-relaxed">Yes, it's working perfectly. Check out this preview of the shader integration.</p>
+          </div>
+          <div className="w-full bg-surface-container-low border border-border-subtle rounded-xl overflow-hidden glass-panel p-2 flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
+            <div className="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary-fixed-dim">data_object</span>
+            </div>
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-body-md font-medium text-primary truncate">flux_shader_v2.glsl</span>
+              <span className="text-label-sm text-on-surface-variant">4.2 MB • Source Code</span>
+            </div>
+            <span className="material-symbols-outlined ml-auto text-on-surface-variant">download</span>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-3 max-w-[85%] md:max-w-[70%] ml-auto">
+          <div className="glass-card-primary rounded-2xl rounded-tr-none p-5 relative overflow-hidden group border-primary/20">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-50"></div>
+            <p className="text-body-md text-primary relative z-10 leading-relaxed">Impressive. The vibrancy on the cyan accents is exactly what the brand needs. Let's push this to the staging environment.</p>
+          </div>
+          <div className="flex items-center gap-1.5 mr-1">
+            <span className="text-[10px] text-on-surface-variant/60">10:48 AM</span>
+            <span className="material-symbols-outlined text-[14px] text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>done_all</span>
+          </div>
+        </div>
         <div className="flex items-center gap-3 py-2">
           <div className="flex gap-1.5">
             <div className="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></div>
@@ -83,6 +106,6 @@ export default function Messages() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
