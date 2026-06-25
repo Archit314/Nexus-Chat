@@ -1,11 +1,12 @@
+import { useEffect } from 'react';
+import { useFriendRequests } from '../hooks';
+
 export default function Requests() {
-  const requests = [
-    { name: 'Kaelen_Mod_04', mutual: 14, timestamp: '2023.10.27 // 14:22:01', encryption: 'AES-256 VERIFIED', secure: true },
-    { name: 'Sera_Flux', mutual: 2, timestamp: '2023.10.27 // 09:12:44', encryption: 'RSA-4096 VERIFIED', secure: true },
-    { name: 'System_Arch_3', mutual: 0, timestamp: '2023.10.26 // 23:59:59', encryption: 'UNKNOWN PROTOCOL', secure: false },
-    { name: 'Dr_Voxel_PhD', mutual: 142, timestamp: '2023.10.26 // 18:05:30', encryption: 'ECDSA SECURE', secure: true },
-    { name: 'Proto_X', mutual: 3, timestamp: '2023.10.26 // 11:40:12', encryption: 'AES-256 VERIFIED', secure: true },
-  ];
+  const { pending, loading, error, fetchPending, acceptRequest, rejectRequest } = useFriendRequests();
+
+  useEffect(() => {
+    fetchPending();
+  }, [fetchPending]);
 
   return (
     <div className="flex flex-col flex-1">
@@ -35,74 +36,77 @@ export default function Requests() {
             <h2 className="font-headline-lg text-headline-lg text-primary tracking-tight">Connection Requests</h2>
             <p className="font-body-md text-on-surface-variant mt-2 max-w-lg">Manage incoming handshake protocols. Review node security before granting persistent access to your communication stream.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 rounded-lg bg-surface-container text-on-surface font-body-md hover:bg-surface-container-high transition-colors">Select All</button>
-            <button className="px-4 py-2 rounded-lg bg-surface-container text-on-surface font-body-md hover:bg-surface-container-high transition-colors">Reject All</button>
-          </div>
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          {requests.map((r, i) => (
-            <div key={i} className="glass-card rounded-2xl p-4 md:p-6 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 group hover:border-primary-fixed-dim/30 transition-all duration-500">
-              <div className="flex items-center gap-4 md:gap-6">
-                <div className="relative shrink-0">
-                  {r.secure ? (
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <div className="flex items-center gap-3 text-on-surface-variant">
+              <div className="w-2 h-2 bg-primary-fixed-dim rounded-full animate-pulse"></div>
+              <span className="font-label-md uppercase tracking-widest">Scanning network...</span>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="bg-error/10 border border-error/30 rounded-lg px-4 py-3 mb-6">
+            <p className="text-error text-sm font-label-md">{error}</p>
+          </div>
+        )}
+        {!loading && !error && pending.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <span className="material-symbols-outlined text-[64px] text-primary-fixed-dim/40">group_add</span>
+            <h3 className="font-headline-md text-headline-md text-text-primary mt-4">All Clear</h3>
+            <p className="font-body-md text-on-surface-variant mt-2">No pending connection requests.</p>
+          </div>
+        )}
+        {!loading && pending.length > 0 && (
+          <div className="grid grid-cols-1 gap-4">
+            {pending.map((r) => (
+              <div key={r.id || r.requestId} className="glass-card rounded-2xl p-4 md:p-6 flex flex-col md:flex-row md:items-center gap-4 md:gap-6 group hover:border-primary-fixed-dim/30 transition-all duration-500">
+                <div className="flex items-center gap-4 md:gap-6 flex-1">
+                  <div className="relative shrink-0">
                     <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 border-surface-variant bg-surface-container"></div>
-                  ) : (
-                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-surface-variant">
-                      <span className="material-symbols-outlined text-[24px] md:text-[32px] text-on-surface-variant">shield_lock</span>
-                    </div>
-                  )}
-                  {r.secure && (
                     <div className="absolute -bottom-1 -right-1 bg-secondary text-on-secondary-fixed rounded-full p-0.5 border-2 border-background">
                       <span className="material-symbols-outlined text-[12px] md:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                     </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-headline-sm text-headline-sm text-on-surface truncate">{r.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="material-symbols-outlined text-[14px] text-on-surface-variant shrink-0">group</span>
-                    <span className="font-label-sm text-on-surface-variant text-sm">{r.mutual} Mutual Nodes</span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface truncate">{r.senderName || r.userName || `User #${r.senderId}`}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="material-symbols-outlined text-[14px] text-on-surface-variant shrink-0">schedule</span>
+                      <span className="font-label-sm text-on-surface-variant text-sm">{r.timestamp || 'Pending'}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="hidden md:grid md:grid-cols-2 gap-x-4 gap-y-1 md:min-w-[260px]">
-                <div>
-                  <span className="font-label-md text-primary-fixed-dim text-[10px]">TIMESTAMP:</span>
-                  <span className="font-label-md text-on-surface-variant text-[10px] ml-1">{r.timestamp}</span>
-                </div>
-                <div>
-                  <span className={`font-label-md text-[10px] ${r.secure ? 'text-secondary' : 'text-error'}`}>ENCRYPTION:</span>
-                  <span className="font-label-md text-on-surface-variant text-[10px] ml-1">{r.encryption}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 md:ml-auto shrink-0">
-                <button className="flex-1 md:flex-none px-4 md:px-5 py-2.5 bg-surface-variant/30 text-on-surface-variant font-bold rounded-lg border border-border-subtle hover:bg-surface-variant hover:text-on-surface transition-all">Ignore</button>
-                <button className="flex-1 md:flex-none px-5 md:px-6 py-2.5 bg-primary-fixed-dim text-on-primary-fixed font-bold rounded-lg cyan-glow hover:scale-105 transition-all">Accept</button>
-              </div>
-              <div className="md:hidden grid grid-cols-2 gap-2 text-[10px] font-label-md">
-                <div>
-                  <span className="text-primary-fixed-dim">TIMESTAMP: </span>
-                  <span className="text-on-surface-variant">{r.timestamp}</span>
-                </div>
-                <div>
-                  <span className={r.secure ? 'text-secondary' : 'text-error'}>{r.encryption}</span>
+                <div className="flex items-center gap-3 md:ml-auto shrink-0">
+                  <button
+                    onClick={() => rejectRequest(r.id || r.requestId)}
+                    className="flex-1 md:flex-none px-4 md:px-5 py-2.5 bg-surface-variant/30 text-on-surface-variant font-bold rounded-lg border border-border-subtle hover:bg-surface-variant hover:text-on-surface transition-all"
+                  >
+                    Ignore
+                  </button>
+                  <button
+                    onClick={() => acceptRequest(r.id || r.requestId)}
+                    className="flex-1 md:flex-none px-5 md:px-6 py-2.5 bg-primary-fixed-dim text-on-primary-fixed font-bold rounded-lg cyan-glow hover:scale-105 transition-all"
+                  >
+                    Accept
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-12 flex flex-col items-center">
-          <div className="w-12 h-1 px-1 bg-surface-variant/50 rounded-full flex gap-1 mb-6">
-            <div className="flex-1 bg-primary-fixed-dim rounded-full"></div>
-            <div className="flex-1 bg-surface-variant/30 rounded-full"></div>
-            <div className="flex-1 bg-surface-variant/30 rounded-full"></div>
+            ))}
           </div>
-          <button className="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-md">
-            <span>LOAD PREVIOUS ARCHIVE</span>
-            <span className="material-symbols-outlined transition-transform group-hover:translate-y-1">expand_more</span>
-          </button>
-        </div>
+        )}
+        {!loading && !error && pending.length > 0 && (
+          <div className="mt-12 flex flex-col items-center">
+            <div className="w-12 h-1 px-1 bg-surface-variant/50 rounded-full flex gap-1 mb-6">
+              <div className="flex-1 bg-primary-fixed-dim rounded-full"></div>
+              <div className="flex-1 bg-surface-variant/30 rounded-full"></div>
+              <div className="flex-1 bg-surface-variant/30 rounded-full"></div>
+            </div>
+            <button className="group flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-md">
+              <span>LOAD PREVIOUS ARCHIVE</span>
+              <span className="material-symbols-outlined transition-transform group-hover:translate-y-1">expand_more</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
