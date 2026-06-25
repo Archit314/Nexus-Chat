@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { FriendRequestService } from './friend-request.service';
 import { SendRequestDto } from './dto/send-request.dto';
 import { AcceptRequestDto } from './dto/accept-request.dto';
 import { RejectRequestDto } from './dto/reject-request.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('friend-request')
 export class FriendRequestController {
 
@@ -12,32 +14,32 @@ export class FriendRequestController {
     ){}
 
     @Post('send')
-    send(@Body() sendRequestDto: SendRequestDto){
+    send(@Req() req: any, @Body() sendRequestDto: SendRequestDto){
 
-        return this.friendRequestService.sendRequest(sendRequestDto.senderId, sendRequestDto.receiverId)
+        return this.friendRequestService.sendRequest(req.user.id, sendRequestDto.receiverId)
     }
 
     @Post('accept')
-    accept(@Body() acceptRequestDto: AcceptRequestDto){
-        
-        return this.friendRequestService.acceptRequest(acceptRequestDto.requestId, acceptRequestDto.userId)
+    accept(@Req() req: any, @Body() acceptRequestDto: AcceptRequestDto){
+
+        return this.friendRequestService.acceptRequest(acceptRequestDto.requestId, req.user.id)
     }
-    
+
     @Post('reject')
-    reject(@Body() rejectRequestDto: RejectRequestDto){
+    reject(@Req() req: any, @Body() rejectRequestDto: RejectRequestDto){
 
-        return this.friendRequestService.rejectRequest(rejectRequestDto.requestId, rejectRequestDto.userId)
+        return this.friendRequestService.rejectRequest(rejectRequestDto.requestId, req.user.id)
     }
 
-    @Get('pending/:userId')
-    pending(@Param('userId', ParseIntPipe) userId: number){
+    @Get('pending')
+    pending(@Req() req: any){
 
-        return this.friendRequestService.pendingRequests(userId)
+        return this.friendRequestService.pendingRequests(req.user.id)
     }
 
-    @Get('friends/:userId')
-    friends(@Param('userId', ParseIntPipe) userId: number){
+    @Get('friends')
+    friends(@Req() req: any){
 
-        return this.friendRequestService.friends(userId)
+        return this.friendRequestService.friends(req.user.id)
     }
 }
