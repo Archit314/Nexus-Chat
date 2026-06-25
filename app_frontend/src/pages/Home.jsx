@@ -1,4 +1,25 @@
+import { useState } from 'react';
+import { useAuth, useFriendRequests, useUserSearch } from '../hooks';
+
 export default function Home() {
+  const { user } = useAuth();
+  const { sendRequest } = useFriendRequests();
+  const { query, setQuery, results, loading, error, search } = useUserSearch();
+  const [sentIds, setSentIds] = useState(new Set());
+
+  const handleAdd = async (receiverId) => {
+    try {
+      await sendRequest(user?.id, receiverId);
+      setSentIds((prev) => new Set(prev).add(receiverId));
+    } catch {
+      /* error handled in hook */
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') search(query);
+  };
+
   return (
     <>
       <header className="hidden md:flex h-16 px-gutter items-center justify-between glass-card border-b border-border-subtle z-30 sticky top-0 bg-glass-bg">
@@ -44,7 +65,7 @@ export default function Home() {
           </button>
         </div>
       </header>
-      <div className="hidden md:flex flex-1 items-center justify-center p-6 md:p-container-padding">
+      <div className="hidden md:flex flex-1 flex-col items-center p-6 md:p-container-padding overflow-y-auto">
         <div className="glass-card w-full max-w-2xl rounded-2xl p-8 md:p-12 flex flex-col items-center text-center space-y-8 float-anim">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
             <span className="material-symbols-outlined text-primary text-[40px]">person_search</span>
@@ -58,21 +79,63 @@ export default function Home() {
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <span className="material-symbols-outlined text-primary/50 group-focus-within:text-primary transition-colors">search</span>
               </div>
-              <input className="w-full bg-surface-muted/50 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-body-md text-text-primary placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all font-label-md" placeholder="Search by name, email, or @handle..." type="text" />
+              <input
+                className="w-full bg-surface-muted/50 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-body-md text-text-primary placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all font-label-md"
+                placeholder="Search by name, email, or @handle..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                type="text"
+              />
             </div>
+          </div>
+          {loading && (
+            <div className="flex items-center gap-2 text-on-surface-variant">
+              <div className="w-2 h-2 bg-primary-fixed-dim rounded-full animate-pulse"></div>
+              <span className="font-label-md text-sm">Searching...</span>
+            </div>
+          )}
+          {error && (
+            <div className="bg-error/10 border border-error/30 rounded-lg px-4 py-2 w-full">
+              <p className="text-error text-sm font-label-md">{error}</p>
+            </div>
+          )}
+          {!loading && !error && query && results.length === 0 && (
+            <p className="text-on-surface-variant font-body-md">No users found.</p>
+          )}
+          {results.length > 0 && (
+            <div className="w-full space-y-3">
+              {results.map((u) => (
+                <div key={u.id} className="glass-card rounded-xl p-4 flex items-center justify-between group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container border border-border-subtle"></div>
+                    <div className="text-left">
+                      <h3 className="font-headline-sm text-headline-sm text-text-primary">{u.userName || u.name}</h3>
+                      <p className="text-label-sm text-on-surface-variant">{u.email || ''}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleAdd(u.id)}
+                    disabled={sentIds.has(u.id)}
+                    className="px-4 py-2 bg-primary-container text-on-primary-container rounded-lg font-label-md text-sm hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {sentIds.has(u.id) ? 'Sent' : 'Add'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {!query && (
             <div className="flex flex-wrap justify-center gap-2">
               <span className="text-label-sm text-on-surface-variant/50 uppercase tracking-widest">Trending:</span>
               <button className="text-label-sm text-primary hover:underline">#DesignOps</button>
               <button className="text-label-sm text-primary hover:underline">#NexusCore</button>
               <button className="text-label-sm text-primary hover:underline">#FluxEngine</button>
             </div>
-          </div>
-          <button className="bg-primary-container text-on-primary-container px-8 py-3 rounded-xl font-label-md text-label-md hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
-            Start Discovery
-          </button>
+          )}
         </div>
       </div>
-      <main className="md:hidden flex-1 overflow-y-auto no-scrollbar relative flex flex-col items-center justify-center p-6 space-y-8">
+      <main className="md:hidden flex-1 overflow-y-auto no-scrollbar relative flex flex-col items-center p-6 space-y-8">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-nexus-cyan/5 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="text-center space-y-2 z-10">
           <h1 className="text-3xl font-extrabold tracking-tight text-white">Connect with the Future.</h1>
@@ -86,17 +149,59 @@ export default function Home() {
                   <path clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fillRule="evenodd"></path>
                 </svg>
               </div>
-              <input className="block w-full bg-obsidian-800/50 border-white/10 rounded-xl py-3.5 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-nexus-cyan focus:border-nexus-cyan text-gray-200 transition-all font-mono" placeholder="Search by name, ID, or @handle..." type="text" />
+              <input
+                className="block w-full bg-obsidian-800/50 border-white/10 rounded-xl py-3.5 pl-10 pr-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-nexus-cyan focus:border-nexus-cyan text-gray-200 transition-all font-mono"
+                placeholder="Search by name, ID, or @handle..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                type="text"
+              />
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
-              <span className="px-3 py-1 bg-obsidian-700/50 rounded-full text-[10px] font-bold text-gray-400 border border-white/5 hover:border-nexus-cyan/30 transition-colors cursor-pointer">#DesignOps</span>
-              <span className="px-3 py-1 bg-obsidian-700/50 rounded-full text-[10px] font-bold text-gray-400 border border-white/5 hover:border-nexus-cyan/30 transition-colors cursor-pointer">#NexusCore</span>
-              <span className="px-3 py-1 bg-obsidian-700/50 rounded-full text-[10px] font-bold text-gray-400 border border-white/5 hover:border-nexus-cyan/30 transition-colors cursor-pointer">#FluxEngine</span>
-            </div>
+            {loading && (
+              <div className="flex items-center justify-center gap-2 text-gray-400">
+                <div className="w-1.5 h-1.5 bg-nexus-cyan rounded-full animate-pulse"></div>
+                <span className="text-[10px] font-mono uppercase">Scanning...</span>
+              </div>
+            )}
+            {error && (
+              <div className="bg-error/10 border border-error/30 rounded-lg px-4 py-2">
+                <p className="text-error text-[11px] font-label-md">{error}</p>
+              </div>
+            )}
+            {!loading && query && results.length === 0 && (
+              <p className="text-gray-400 text-sm font-mono text-center">No users found.</p>
+            )}
+            {results.length > 0 && (
+              <div className="space-y-2">
+                {results.map((u) => (
+                  <div key={u.id} className="flex items-center justify-between bg-obsidian-800/50 rounded-xl p-3 border border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-obsidian-700 border border-white/10"></div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{u.userName || u.name}</p>
+                        <p className="text-[10px] text-gray-400 font-mono">{u.email || ''}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleAdd(u.id)}
+                      disabled={sentIds.has(u.id)}
+                      className="text-[10px] font-bold text-obsidian-900 bg-nexus-cyan px-3 py-1.5 rounded-lg uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sentIds.has(u.id) ? 'Sent' : 'Add'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!query && (
+              <div className="flex flex-wrap justify-center gap-2">
+                <span className="px-3 py-1 bg-obsidian-700/50 rounded-full text-[10px] font-bold text-gray-400 border border-white/5 hover:border-nexus-cyan/30 transition-colors cursor-pointer">#DesignOps</span>
+                <span className="px-3 py-1 bg-obsidian-700/50 rounded-full text-[10px] font-bold text-gray-400 border border-white/5 hover:border-nexus-cyan/30 transition-colors cursor-pointer">#NexusCore</span>
+                <span className="px-3 py-1 bg-obsidian-700/50 rounded-full text-[10px] font-bold text-gray-400 border border-white/5 hover:border-nexus-cyan/30 transition-colors cursor-pointer">#FluxEngine</span>
+              </div>
+            )}
           </div>
-          <button className="w-full bg-nexus-cyan hover:bg-cyan-400 text-obsidian-900 font-black uppercase tracking-widest py-4 rounded-xl transition-all active:scale-[0.98] cyan-glow text-sm">
-            Start Discovery
-          </button>
         </section>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-obsidian-800/50 rounded-lg border border-white/5 z-10">
           <div className="w-1.5 h-1.5 bg-nexus-cyan rounded-full animate-pulse"></div>
