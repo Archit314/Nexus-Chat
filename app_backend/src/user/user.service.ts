@@ -31,4 +31,13 @@ export class UserService {
 
         return this.userRepo.findOne({ where: { id}})
     }
+
+    async search(query: string, excludeUserId?: number) {
+        return this.userRepo.find({
+            where: [
+                { userName: query },
+                { email: query },
+            ],
+        }).then(users => users.filter(user => user.id !== excludeUserId));
+    }
 }
