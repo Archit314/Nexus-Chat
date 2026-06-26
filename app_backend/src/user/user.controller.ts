@@ -9,6 +9,11 @@ export class UserController {
         private readonly userService: UserService,
     ) {}
 
+    @Get('profile')
+    getProfile(@Req() req: any) {
+        return this.userService.findById(req.user.id);
+    }
+
     @Get('search')
     search(@Req() req: any, @Query('q') query: string) {
         return this.userService.search(query, req.user.id);
