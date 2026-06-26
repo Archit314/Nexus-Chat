@@ -22,6 +22,10 @@ export function useMessages() {
     }
   }, []);
 
+  const addMessage = useCallback((msg) => {
+    setMessages((prev) => [...prev, msg]);
+  }, []);
+
   const sendMessage = useCallback(async (receiverId, content) => {
     setSending(true);
     setError(null);
@@ -44,5 +48,6 @@ export function useMessages() {
     error,
     fetchConversation,
     sendMessage,
+    addMessage,
   };
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useAuth, useMessages } from '../hooks';
+import { socketService } from '../services/socket/SocketService';
 
 export default function Messages() {
   const { receiverId: rawId } = useParams();
@@ -8,7 +9,7 @@ export default function Messages() {
   const location = useLocation();
   const friendName = location.state?.userName || `User #${receiverId}`;
   const { user } = useAuth();
-  const { messages, loading, sending, error, fetchConversation, sendMessage } = useMessages();
+  const { messages, loading, error, fetchConversation, addMessage } = useMessages();
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
 
@@ -17,19 +18,34 @@ export default function Messages() {
   }, [fetchConversation, receiverId]);
 
   useEffect(() => {
+    if (!user?.id) return;
+
+    socketService.connect(user.id);
+
+    const handleNewMessage = (msg) => {
+      if (msg.senderId === receiverId || msg.receiverId === receiverId) {
+        addMessage(msg);
+      }
+    };
+
+    socketService.on('newMessage', handleNewMessage);
+
+    return () => {
+      socketService.off('newMessage', handleNewMessage);
+      socketService.disconnect();
+    };
+  }, [user?.id, receiverId, addMessage]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = async (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
     const trimmed = input.trim();
-    if (!trimmed || sending) return;
+    if (!trimmed) return;
     setInput('');
-    try {
-      await sendMessage(receiverId, trimmed);
-    } catch {
-      /* error is set in hook */
-    }
+    socketService.emit('sendMessage', { receiverId, content: trimmed });
   };
 
   const isOwn = (msg) => msg.senderId === user?.id;
@@ -114,10 +130,10 @@ export default function Messages() {
             </button>
             <button
               type="submit"
-              disabled={sending || !input.trim()}
+              disabled={!input.trim()}
               className="w-10 h-10 flex items-center justify-center bg-primary-container text-on-primary-container rounded-xl hover:brightness-110 active:scale-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-40"
             >
-              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>{sending ? 'hourglass_top' : 'send'}</span>
+              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
             </button>
           </div>
         </form>
