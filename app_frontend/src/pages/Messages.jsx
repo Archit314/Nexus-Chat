@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useAuth, useMessages } from '../hooks';
 import { socketService } from '../services/socket/SocketService';
+import { useSocketContext } from '../context/SocketContext';
 
 export default function Messages() {
   const { receiverId: rawId } = useParams();
@@ -10,6 +11,7 @@ export default function Messages() {
   const friendName = location.state?.userName || `User #${receiverId}`;
   const { user } = useAuth();
   const { messages, loading, error, fetchConversation, addMessage } = useMessages();
+  const { setActiveChat, clearUnread } = useSocketContext();
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
 
@@ -20,8 +22,6 @@ export default function Messages() {
   useEffect(() => {
     if (!user?.id) return;
 
-    socketService.connect(user.id);
-
     const handleNewMessage = (msg) => {
       if (msg.senderId === receiverId || msg.receiverId === receiverId) {
         addMessage(msg);
@@ -30,11 +30,14 @@ export default function Messages() {
 
     socketService.on('newMessage', handleNewMessage);
 
+    setActiveChat(receiverId);
+    clearUnread(receiverId);
+
     return () => {
       socketService.off('newMessage', handleNewMessage);
-      socketService.disconnect();
+      setActiveChat(null);
     };
-  }, [user?.id, receiverId, addMessage]);
+  }, [user?.id, receiverId, addMessage, setActiveChat, clearUnread]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

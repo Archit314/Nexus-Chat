@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFriends } from '../hooks';
+import { useSocketContext } from '../context/SocketContext';
 
 export default function Contacts() {
   const navigate = useNavigate();
   const { friends, loading, error, fetchFriends } = useFriends();
+  const { unreadCounts, onlineUsers } = useSocketContext();
 
   useEffect(() => {
     fetchFriends();
@@ -86,11 +88,16 @@ export default function Contacts() {
                   <div className="relative">
                     <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container border border-border-subtle group-hover:border-primary-fixed-dim/50 transition-colors"></div>
                     <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-4 border-surface-deep bg-secondary"></div>
+                    {unreadCounts[f.id || f.userId] > 0 && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-error/50">
+                        {unreadCounts[f.id || f.userId]}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h3 className="font-headline-sm text-headline-sm text-text-primary">{f.userName || f.name || `User #${f.id || f.userId}`}</h3>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-label-md uppercase tracking-wider bg-secondary/10 text-secondary">Active</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-label-md uppercase tracking-wider ${onlineUsers.has(f.id || f.userId) ? 'bg-secondary/10 text-secondary' : 'bg-surface-variant text-on-surface-variant/50'}`}>{onlineUsers.has(f.id || f.userId) ? 'Active' : 'Offline'}</span>
                       <span className="text-on-surface-variant font-label-md text-[11px] opacity-60">{f.role || 'Connected'}</span>
                     </div>
                   </div>
@@ -155,15 +162,20 @@ export default function Contacts() {
           <div className="grid grid-cols-1 gap-stack-gap">
             {friends.map((f, i) => (
               <div key={f.id || i} className="glass-panel border border-border-subtle rounded-xl p-4 flex items-center gap-4 hover:border-primary-container/30 transition-all group active:scale-95 duration-400 cursor-pointer" onClick={() => navigate(`/messages/${f.id || f.userId}`, { state: { userName: f.userName || f.name } })}>
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden border border-border-subtle bg-surface-container"></div>
-                  <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-surface-deep bg-secondary"></div>
-                </div>
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-border-subtle bg-surface-container"></div>
+                    <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-surface-deep bg-secondary"></div>
+                    {unreadCounts[f.id || f.userId] > 0 && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error text-white text-[8px] font-bold flex items-center justify-center shadow-lg shadow-error/50">
+                        {unreadCounts[f.id || f.userId]}
+                      </div>
+                    )}
+                  </div>
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <h3 className="font-body-lg text-body-lg text-text-primary font-semibold">{f.userName || f.name || `User #${f.id || f.userId}`}</h3>
                   </div>
-                  <p className="font-body-md text-body-md text-on-surface-variant">{f.status || 'Online'}</p>
+                  <p className="font-body-md text-body-md text-on-surface-variant">{onlineUsers.has(f.id || f.userId) ? 'Online' : 'Offline'}</p>
                 </div>
                 <span className="material-symbols-outlined text-primary-container opacity-0 group-hover:opacity-100 transition-opacity">chat_bubble</span>
               </div>

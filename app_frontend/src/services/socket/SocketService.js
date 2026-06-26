@@ -5,15 +5,25 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 class SocketService {
   constructor() {
     this.socket = null;
+    this.listeners = [];
+    this.currentUserId = null;
   }
 
   connect(userId) {
-    if (this.socket?.connected) return;
+    if (this.socket?.connected) {
+      if (this.currentUserId === userId) return;
+      this.disconnect();
+    }
+    this.currentUserId = userId;
 
     this.socket = io(BASE_URL, {
       query: { userId },
       transports: ['websocket', 'polling'],
     });
+
+    for (const { event, callback } of this.listeners) {
+      this.socket.on(event, callback);
+    }
   }
 
   disconnect() {
@@ -22,6 +32,7 @@ class SocketService {
       this.socket.disconnect();
       this.socket = null;
     }
+    this.currentUserId = null;
   }
 
   emit(event, data) {
@@ -29,15 +40,15 @@ class SocketService {
   }
 
   on(event, callback) {
+    this.listeners.push({ event, callback });
     this.socket?.on(event, callback);
   }
 
   off(event, callback) {
-    if (callback) {
-      this.socket?.off(event, callback);
-    } else {
-      this.socket?.removeAllListeners(event);
-    }
+    this.listeners = this.listeners.filter(
+      (l) => !(l.event === event && l.callback === callback)
+    );
+    this.socket?.off(event, callback);
   }
 }
 
