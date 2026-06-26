@@ -19,13 +19,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(socket: Socket) {
     const userId = socket.handshake.query.userId;
-    if (userId) this.activeUsers.set(Number(userId), socket.id);
+    if (userId) {
+      this.activeUsers.set(Number(userId), socket.id);
+      socket.emit('onlineUsers', [...this.activeUsers.keys()]);
+      socket.broadcast.emit('userOnline', Number(userId));
+    }
   }
 
   async handleDisconnect(socket: Socket) {
     for (const [userId, socketId] of this.activeUsers) {
       if (socketId === socket.id) {
         this.activeUsers.delete(userId);
+        this.server.emit('userOffline', userId);
         break;
       }
     }
