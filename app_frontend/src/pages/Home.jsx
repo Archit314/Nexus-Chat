@@ -3,6 +3,7 @@ import { useAuth, useFriendRequests, useUserSearch } from '../hooks';
 
 export default function Home() {
   const { user } = useAuth();
+  const displayName = user?.userName || 'User';
   const { sendRequest } = useFriendRequests();
   const { query, setQuery, results, loading, error, search } = useUserSearch();
   const [sentIds, setSentIds] = useState(new Set());
@@ -31,7 +32,7 @@ export default function Home() {
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-full border-2 border-background"></div>
           </div>
           <div>
-            <h2 className="text-body-md font-bold text-text-primary">Alex Rivera</h2>
+            <h2 className="text-body-md font-bold text-text-primary">{displayName}</h2>
             <span className="text-[11px] text-secondary">Active now</span>
           </div>
         </div>

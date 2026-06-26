@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { useAuth, useMessages } from '../hooks';
 
-const RECEIVER_ID = 2;
-
 export default function Messages() {
+  const { receiverId: rawId } = useParams();
+  const receiverId = Number(rawId);
+  const location = useLocation();
+  const friendName = location.state?.userName || `User #${receiverId}`;
   const { user } = useAuth();
   const { messages, loading, sending, error, fetchConversation, sendMessage } = useMessages();
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    fetchConversation(RECEIVER_ID);
-  }, [fetchConversation]);
+    if (receiverId) fetchConversation(receiverId);
+  }, [fetchConversation, receiverId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -23,13 +26,13 @@ export default function Messages() {
     if (!trimmed || sending) return;
     setInput('');
     try {
-      await sendMessage(RECEIVER_ID, trimmed);
+      await sendMessage(receiverId, trimmed);
     } catch {
       /* error is set in hook */
     }
   };
 
-  const isOwn = (msg) => msg.senderId === user?.id || msg.senderId === 1;
+  const isOwn = (msg) => msg.senderId === user?.id;
 
   return (
     <div className="flex flex-col h-full w-full relative flex-1">
@@ -42,7 +45,7 @@ export default function Messages() {
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-full border-2 border-background"></div>
           </div>
           <div>
-            <h2 className="text-body-md font-bold text-text-primary">Alex Rivera</h2>
+            <h2 className="text-body-md font-bold text-text-primary">{friendName}</h2>
             <span className="text-[11px] text-secondary">Active now</span>
           </div>
         </div>

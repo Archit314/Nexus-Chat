@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFriends } from '../hooks';
 
 export default function Contacts() {
+  const navigate = useNavigate();
   const { friends, loading, error, fetchFriends } = useFriends();
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function Contacts() {
         {!loading && friends.length > 0 && (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {friends.map((f, i) => (
-              <div key={f.id || i} className="glass-card rounded-xl p-5 flex items-center justify-between group">
+              <div key={f.id || i} className="glass-card rounded-xl p-5 flex items-center justify-between group cursor-pointer" onClick={() => navigate(`/messages/${f.id || f.userId}`, { state: { userName: f.userName || f.name } })}>
                 <div className="flex items-center gap-5">
                   <div className="relative">
                     <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container border border-border-subtle group-hover:border-primary-fixed-dim/50 transition-colors"></div>
@@ -152,7 +154,7 @@ export default function Contacts() {
         {!loading && friends.length > 0 && (
           <div className="grid grid-cols-1 gap-stack-gap">
             {friends.map((f, i) => (
-              <div key={f.id || i} className="glass-panel border border-border-subtle rounded-xl p-4 flex items-center gap-4 hover:border-primary-container/30 transition-all group active:scale-95 duration-400">
+              <div key={f.id || i} className="glass-panel border border-border-subtle rounded-xl p-4 flex items-center gap-4 hover:border-primary-container/30 transition-all group active:scale-95 duration-400 cursor-pointer" onClick={() => navigate(`/messages/${f.id || f.userId}`, { state: { userName: f.userName || f.name } })}>
                 <div className="relative">
                   <div className="w-12 h-12 rounded-lg overflow-hidden border border-border-subtle bg-surface-container"></div>
                   <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-surface-deep bg-secondary"></div>
@@ -163,7 +165,7 @@ export default function Contacts() {
                   </div>
                   <p className="font-body-md text-body-md text-on-surface-variant">{f.status || 'Online'}</p>
                 </div>
-                <button className="material-symbols-outlined text-primary-container opacity-0 group-hover:opacity-100 transition-opacity">chat_bubble</button>
+                <span className="material-symbols-outlined text-primary-container opacity-0 group-hover:opacity-100 transition-opacity">chat_bubble</span>
               </div>
             ))}
           </div>

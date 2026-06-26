@@ -15,10 +15,6 @@ function Sidebar() {
           <span className="material-symbols-outlined text-xl group-hover:text-primary-fixed-dim">chat</span>
           <span className="font-body-md">Home</span>
         </NavLink>
-        <NavLink to="/messages" className={linkClass}>
-          <span className="material-symbols-outlined text-xl group-hover:text-primary-fixed-dim">forum</span>
-          <span className="font-body-md">Messages</span>
-        </NavLink>
         <NavLink to="/contacts" className={linkClass}>
           <span className="material-symbols-outlined text-xl group-hover:text-primary-fixed-dim">contacts</span>
           <span className="font-body-md">Contacts</span>
@@ -78,15 +74,6 @@ function BottomNav() {
           <path d="m21 21-4.3-4.3"></path>
         </svg>
         <span className="text-[10px] font-bold">CONTACTS</span>
-      </NavLink>
-      <NavLink to="/messages" className={linkClass}>
-        <div className="relative">
-          <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-nexus-cyan rounded-full border border-obsidian-800"></span>
-        </div>
-        <span className="text-[10px] font-bold">MESSAGES</span>
       </NavLink>
       <NavLink to="/requests" className={linkClass}>
         <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">

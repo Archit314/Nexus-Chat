@@ -14,7 +14,7 @@ export default function AppRoutes() {
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route element={<DesktopLayout />}>
         <Route path="home" element={<Home />} />
-        <Route path="messages" element={<Messages />} />
+        <Route path="messages/:receiverId" element={<Messages />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="requests" element={<Requests />} />
         <Route path="archived" element={<Archived />} />
